@@ -25,17 +25,20 @@ Table complaints {
         Schema::create('complaints', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();
+            $table->unsignedBigInteger('citizen_id')->nullable();
+            $table->unsignedBigInteger('employee_id')->nullable();
+            $table->unsignedBigInteger('agency_id')->nullable();
             $table->text('description')->nullable();
-            $table->enum('type', ['خدمة', 'سلوك', 'بنية تحتية']);
+            $table->enum('type', ['type1', 'type2', 'type3']);
             $table->enum('priority', ['high', 'low', 'medium'])->default('medium');
             $table->enum('status', ['new', 'in_review', 'in_progress', 'awaiting_info', 'resolved', 'rejected', 'closed'])->default('new');
             $table->decimal('latitude', 10, 7)->nullable();
             $table->decimal('longitude', 10, 7)->nullable();
             $table->text('address_text')->nullable();
             $table->boolean('is_locked')->nullable();
-            $table->foreignId('citizen_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreignId('employee_id')->references('id')->on('users')->onDelete('cascade'); // employee that process the complaint
-            $table->foreignId('agency_id')->references('id')->on('government_agencies')->onDelete('cascade'); // employee that process the complaint
+            $table->foreign('citizen_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('employee_id')->references('id')->on('users')->onDelete('cascade'); // employee that process the complaint
+            $table->foreign('agency_id')->references('id')->on('government_agencies')->onDelete('cascade'); // employee that process the complaint
             $table->timestamps();
         });
     }

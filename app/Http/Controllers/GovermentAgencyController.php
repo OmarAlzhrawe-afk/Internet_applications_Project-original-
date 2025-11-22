@@ -61,9 +61,9 @@ class GovermentAgencyController extends Controller
             'Message' => "updating Agency Done"
         ]);
     }
-    public function delete($id)
+    public function delete(Request $request)
     {
-        GovernmentAgencie::find($id)->delete();
+        GovernmentAgencie::find($request->input('id'))->delete();
         return  response()->json([
             'status' => 'succesfully',
             'Message' => "Deleting Agency Done"
