@@ -2,98 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ManagingUsersController extends Controller
 {
-    public function index($role)
+    use AuthorizesRequests;
+    private $service;
+    public function __construct(UserService $service)
     {
-        $users = User::where('role', $role)->get();
+        $this->service = $service;
+    }
+    public function index()
+    {
+        $this->authorize('view', auth('sanctum')->user());
+        $users =  $this->service->index();
         return  response()->json([
             'status' => 'succesfully',
-            'agencies' => $users
+            'users' => $users
         ]);
     }
-    public function create(Request $request)
+    public function create(CreateUserRequest $request)
     {
-        $request->validate([
-            'First_name' => 'required',
-            'Last_name' => 'required',
-            'email' => 'required',
-            'phone_number' => 'required',
-            'password' => 'required',
-            'agency_id' => 'nullable',
-            'role' => 'required',
-        ]);
-        User::create([
-            'First_name' => $request->input('First_name'),
-            'Last_name' => $request->input('Last_name'),
-            'email' => $request->input('email'),
-            'phone_number' => $request->input('phone_number'),
-            'password' => $request->input('password'),
-            'agency_id' => $request->input('agency_id') ?? null,
-            'role' => $request->input('role'),
-        ]);
-        return  response()->json([
-            'status' => 'succesfully',
-            'Message' => "Creating " . $request->input('role') . " Done"
-        ]);
+        $data =  $request->validated();
+        $this->authorize('create', User::class);
+        $user = $this->service->create($data);
+        return  sendResponse($user, 201, "Creating " . $request->input('role') . " Done", false);
     }
-    public function update(Request $request)
+    public function update(UpdateUserRequest $request)
     {
-        $request->validate([
-            'id' => 'required',
-            'First_name' => 'nullable',
-            'Last_name' => 'nullable',
-            'email' => 'nullable',
-            'phone_number' => 'nullable',
-            'password' => 'nullable',
-            'agency_id' => 'nullable',
-            'role' => 'nullable',
-        ]);
-        $user = User::findOrFail($request->input('id'));
-
-        if ($request->filled('First_name')) {
-            $user->First_name = $request->input('First_name');
-        }
-
-        if ($request->filled('Last_name')) {
-            $user->Last_name = $request->input('Last_name');
-        }
-
-        if ($request->filled('email')) {
-            $user->email = $request->input('email');
-        }
-
-        if ($request->filled('phone_number')) {
-            $user->phone_number = $request->input('phone_number');
-        }
-
-        if ($request->filled('agency_id')) {
-            $user->agency_id = $request->input('agency_id');
-        }
-
-        if ($request->filled('role')) {
-            $user->role = $request->input('role');
-        }
-        if ($request->filled('password')) {
-            $user->password = Hash::make($request->input('password'));
-        }
-        $user->save();
-        return  response()->json([
-            'status' => 'succesfully',
-            'Message' => "Updating " . $request->input('role') . " Done"
-        ]);
+        $data =  $request->validated();
+        $user = User::findOrFail($data['id']);
+        $this->authorize('update', $user);
+        $user = $this->service->update($data);
+        return  sendResponse($user, 200, "Updating " . $request->input('role') . " Done", false);
     }
     public function delete(Request $request)
     {
-        User::find($request->input('id'))->delete();
-        // here we will delete tokens for this user
-        return  response()->json([
-            'status' => 'succesfully',
-            'Message' => "Deleting Agency Done"
-        ]);
+        $request->validate(['id' => 'required | exists:users,id']);
+        $user = User::find($request->input('id'));
+        $this->authorize('delete', $user);
+        $user->tokens()->delete();
+        $user->delete();
+        return sendResponse(null, 200, "Deleting User Done", false);
     }
 }

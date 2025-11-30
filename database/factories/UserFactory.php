@@ -2,43 +2,32 @@
 
 namespace Database\Factories;
 
+use App\Models\GovernmentAgencie;
+use App\Models\User;
+// use App\Models\GovernmentAgency;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+    protected $model = User::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
+    public function definition()
     {
+        $agencyId = GovernmentAgencie::inRandomOrder()->value('id');
+
+        if (!$agencyId) {
+            $agencyId = GovernmentAgencie::factory()->create()->id;
+        }
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'agency_id'   => $agencyId,
+            'First_name'  => fake()->firstName(),
+            'Last_name'   => fake()->lastName(),
+            'email'       => fake()->unique()->safeEmail(),
+            'phone_number' => fake()->unique()->phoneNumber(),
+            'password'    => Hash::make("password"),
+            'role'        => fake()->randomElement(['super_admin', 'supervisor', 'employee', 'client']),
         ];
-    }
-
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
     }
 }

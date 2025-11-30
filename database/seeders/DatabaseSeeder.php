@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\GovernmentAgencie;
+use App\Models\Complaint;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -14,7 +16,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        GovernmentAgencie::factory()->count(5)->create();
+        User::factory()->count(40)->create(['role' => 'employee']);
+        User::factory()->count(40)->create(['role' => 'client']);
+        User::factory()->count(40)->create(['role' => 'supervisor']);
+        Complaint::factory()->count(50)->create();
         User::create([
             'First_name' => "Super",
             'Last_name' => "Admin",

@@ -52,8 +52,8 @@ Route::prefix('employee')->middleware(['auth:sanctum', 'role:employee'])->group(
     Route::controller(ManagingComplaintsController::class)->group(function () {
         Route::get('get_complaints', 'index'); // override for employee && supervisor && super Admin
         Route::post('update_complaint', 'update'); // override for employee && supervisor && super Admin
-        Route::post('add_comment_complaint', 'delete'); // override for employee && citizin
-        Route::post('add_attachment_complaint', 'delete'); // override for employee && citizin
+        Route::post('add_comment_complaint', 'add_comment_complaint'); // override for employee && citizin
+        Route::post('add_attachment_complaint', 'add_attachment_complaint'); // override for employee && citizin
     });
     // Route::get('reports', [ManageEmployeeTicketsController::class, 'generate_reports']);
     // Route::get('show_logs_statistics', [ManageEmployeeTicketsController::class, 'show_logs_statistics']);
@@ -61,42 +61,29 @@ Route::prefix('employee')->middleware(['auth:sanctum', 'role:employee'])->group(
 // old api file 
 
 
-// Route::prefix('/client')->group(function () {
-//     Route::post('/register', [ClientAuthController::class, 'register']);
-//     Route::post('/send_verification_code', [ClientAuthController::class, 'sendVerificationCode']);
-//     Route::post('/verify_email', [ClientAuthController::class, 'verifyEmail']);
-//     Route::post('/login', [ClientAuthController::class, 'login']);
-//     Route::post('/forget_password', [ClientAuthController::class, 'forgetPassword']);
-//     Route::middleware(['auth:sanctum', 'api'])->group(function () {
-//         Route::post('/reset_password', [ClientAuthController::class, 'resetPassword']);
-//         Route::post('/logout', [ClientAuthController::class, 'logout']);
-//         // Complaints routes
-//         Route::prefix('/complaints')->group(function () {
-//             Route::post('/create', [ComplaintController::class, 'createcomplaint']);
-//             Route::get('/{id}', [ComplaintController::class, 'getTicket']);
-//             Route::get('/getallmytickets', [ComplaintController::class, 'getAllMyTickets']);
-//             Route::put('/{id}', [ComplaintController::class, 'updateTicket']);
-//             Route::delete('/{id}', [ComplaintController::class, 'deleteTicket']);
-//         });
-//         // Notifications routes
-//         Route::prefix('Notifications')->group(function () {
-//             Route::get('/getall', [ClientAuthController::class, 'getAllNotifications']);
-//             Route::post('/markasread/{id}', [ClientAuthController::class, 'markAsRead']);
-//         });
-//     });
-// });
-
-
-// //  employee routes
-// Route::prefix('employee')->group(function () {
-//     // Employee authentication routes
-//     Route::post('/login', [EmployeeAuthController::class, 'login']);
-//     Route::post('/logout', [EmployeeAuthController::class, 'logout'])->middleware('auth:api');
-//     // Employee ticket management routes
-//     Route::middleware('auth:api')->prefix('/Tickets')->group(function () {
-//         Route::get('/get_my_tickets', [ManageEmployeeTicketsController::class, 'get_my_tickets']);
-//         Route::get('/add_notes_for_tickets', [ManageEmployeeTicketsController::class, '/add_notes_for_tickets']);
-//         Route::put('/{id}/update-status', [ManageEmployeeTicketsController::class, 'updateTicketStatus']);
-//         Route::post('/send_notify', [ManageEmployeeTicketsController::class, 'send_notify']);
-//     });
-// });
+Route::prefix('/client')->group(function () {
+    Route::controller(AuthController::class)->group(function () {
+        Route::post('/register', 'register');
+        Route::post('/send_verification_code', 'sendVerificationCode');
+        Route::post('/verify_email', 'verifyEmail');
+        Route::post('/login', 'login');
+        Route::post('/logout', 'logout')->middleware('auth:sanctum');
+    });
+    Route::middleware(['auth:sanctum', 'role:client'])->group(function () {
+        // Complaints routes
+        Route::prefix('/complaints')->controller(ManagingComplaintsController::class)->group(function () {
+            Route::get('/getall',  'index');
+            Route::get('/get/{id}',  'OneComplaint');
+            Route::post('/update', 'update');
+            Route::post('/createcomplaint', 'create');
+            Route::delete('/delete/{id}', 'deleteTicket');
+            Route::post('add_comment_complaint', 'add_comment_complaint'); // override for employee && citizin
+            Route::post('add_attachment_complaint', 'add_attachment_complaint'); // override for employee && citizin
+        });
+        // // Notifications routes
+        // Route::prefix('Notifications')->group(function () {
+        //     Route::get('/getall', [ClientAuthController::class, 'getAllNotifications']);
+        //     Route::post('/markasread/{id}', [ClientAuthController::class, 'markAsRead']);
+        // });
+    });
+});

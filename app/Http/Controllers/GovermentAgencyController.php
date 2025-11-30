@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\GovernmentAgencie;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class GovermentAgencyController extends Controller
 {
+    use AuthorizesRequests;
     public function index()
     {
+        $this->authorize('view', GovernmentAgencie::class);
+
         $agencies = GovernmentAgencie::all();
         return  response()->json([
             'status' => 'succesfully',
@@ -17,6 +21,8 @@ class GovermentAgencyController extends Controller
     }
     public function create(Request $request)
     {
+        $this->authorize('create', GovernmentAgencie::class);
+
         $request->validate([
             'name' => 'required',
             'description' => 'required',
@@ -39,6 +45,8 @@ class GovermentAgencyController extends Controller
     }
     public function update(Request $request)
     {
+        $this->authorize('update', GovernmentAgencie::class);
+
         $request->validate([
             'id' => 'required',
             'name' => 'nullable',
@@ -63,6 +71,8 @@ class GovermentAgencyController extends Controller
     }
     public function delete(Request $request)
     {
+        $this->authorize('delete', GovernmentAgencie::class);
+
         GovernmentAgencie::find($request->input('id'))->delete();
         return  response()->json([
             'status' => 'succesfully',

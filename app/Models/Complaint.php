@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Complaint extends Model
 {
+    use HasFactory;
     protected $table = "complaints";
     protected $fillable = [
         'title',
@@ -15,7 +17,7 @@ class Complaint extends Model
         'status', // ['new', 'in_review', 'in_progress', 'awaiting_info', 'resolved', 'rejected', 'closed']
         'latitude',
         'longitude',
-        'text_address',
+        'address_text',
         'is_locked',
         'citizen_id',
         'agency_id',
@@ -24,11 +26,12 @@ class Complaint extends Model
     ];
     public function employee()
     {
-        return $this->belongsTo(User::class, 'locked_by_id');
+        return $this->belongsTo(User::class, 'employee_id');
     }
+
     public function client()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'citizen_id');
     }
     public function attachments()
     {

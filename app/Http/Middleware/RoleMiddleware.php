@@ -8,21 +8,21 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-   public function handle(Request $request, Closure $next,$roles)
-    {
-        try {
-        $user = $request->user();
-        if (!$user || $user->role != $roles) {
-            return response()->json(['message' => 'un Authorized'], 403);
-        }
-        return $next($request);
-      } catch (Exception $e) {
-            return response()->json(['message' => 'Error'], 403);
-        }
+  /**
+   * Handle an incoming request.
+   *
+   * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+   */
+  public function handle(Request $request, Closure $next, $roles)
+  {
+    try {
+      $user = $request->user();
+      if (!$user || $user->role != $roles) {
+        return response()->json(['message' => 'un  Authorized'], 403);
       }
+      return $next($request);
+    } catch (Exception $e) {
+      return response()->json(['message' => 'Error'], 403);
+    }
+  }
 }
