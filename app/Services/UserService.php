@@ -8,7 +8,6 @@ use App\Repositories\UserRepository;
 class UserService
 {
     protected $repo;
-
     public function __construct(UserRepository $repo)
     {
         $this->repo = $repo->dao();
@@ -18,7 +17,6 @@ class UserService
     {
         return $this->repo->getUsers();
     }
-
     public function create(array $data)
     {
         if (auth('sanctum')->user()->role === 'supervisor' && $data['agency_id'] != auth('sanctum')->user()->agency_id) {

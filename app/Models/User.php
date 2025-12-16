@@ -49,6 +49,6 @@ class User extends Authenticatable
     // Relations
     public function agency()
     {
-        return $this->belongsTo(GovernmentAgencie::class, "agency_id", "id");
+        return $this->belongsTo(GovernmentAgencie::class); // , "agency_id", "id"
     }
 }

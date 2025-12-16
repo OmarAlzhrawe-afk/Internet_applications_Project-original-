@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use app\contracts\GovermentAgencyInterface;
+use App\Http\Requests\CreateAgencyRequest;
+use App\Http\Requests\UpdateAgencyRequest;
 use Illuminate\Http\Request;
 use App\Models\GovernmentAgencie;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -9,74 +12,52 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class GovermentAgencyController extends Controller
 {
     use AuthorizesRequests;
+
+    protected $govermentAgencyInterface;
+    public function __construct(GovermentAgencyInterface $govermentAgencyInterface)
+    {
+        $this->govermentAgencyInterface = $govermentAgencyInterface;
+    }
     public function index()
     {
+        // check permission
         $this->authorize('view', GovernmentAgencie::class);
-
-        $agencies = GovernmentAgencie::all();
-        return  response()->json([
-            'status' => 'succesfully',
-            'agencies' => $agencies
-        ]);
+        // fetching agencies
+        $agencies = $this->govermentAgencyInterface->index();
+        // returning response
+        return sendResponse($agencies, 200, "Fetching Agencies Done", false);
     }
-    public function create(Request $request)
+    public function create(CreateAgencyRequest $request)
     {
+        // check permission
         $this->authorize('create', GovernmentAgencie::class);
-
-        $request->validate([
-            'name' => 'required',
-            'description' => 'required',
-            'address' => 'required',
-            'contact_email' => 'required',
-            'contact_phone' => 'required',
-        ]);
-        GovernmentAgencie::create([
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-            'address' => $request->input('address'),
-            'contact_email' => $request->input('contact_email'),
-            'contact_phone' => $request->input('contact_phone'),
-
-        ]);
-        return  response()->json([
-            'status' => 'succesfully',
-            'Message' => "Creating Agency Done"
-        ]);
+        // validating request
+        $data = $request->validated();
+        // creating agency
+        $creation = $this->govermentAgencyInterface->create($data);
+        // returning response
+        if ($creation) {
+            return sendResponse(null, 201, "Creating Agency Done", false);
+        }
     }
-    public function update(Request $request)
+    public function update(UpdateAgencyRequest $request)
     {
+        // checking permission
         $this->authorize('update', GovernmentAgencie::class);
-
-        $request->validate([
-            'id' => 'required',
-            'name' => 'nullable',
-            'description' => 'nullable',
-            'address' => 'nullable',
-            'contact_email' => 'nullable',
-            'contact_phone' => 'nullable',
-        ]);
-
-        GovernmentAgencie::where('id', $request->input('id'))->update([
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-            'address' => $request->input('address'),
-            'contact_email' => $request->input('contact_email'),
-            'contact_phone' => $request->input('contact_phone'),
-
-        ]);
-        return  response()->json([
-            'status' => 'succesfully',
-            'Message' => "updating Agency Done"
-        ]);
+        // validating request
+        $data = $request->validated();
+        // updating agency
+        $this->govermentAgencyInterface->update($data['id'], $data);
+        // returning response
+        return sendResponse(null, 200, "Updating Agency Done", false);
     }
     public function delete(Request $request)
     {
+        // checking permissions
         $this->authorize('delete', GovernmentAgencie::class);
-
-        GovernmentAgencie::find($request->input('id'))->delete();
-        return  response()->json([
-            'status' => 'succesfully',
-            'Message' => "Deleting Agency Done"
-        ]);
+        // deleting agency
+        $this->govermentAgencyInterface->delete($request->input('id'));
+        // returning response
+        return sendResponse(null, 200, "Deleting Agency Done", false);
     }
 }

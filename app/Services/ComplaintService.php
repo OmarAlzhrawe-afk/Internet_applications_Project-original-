@@ -7,29 +7,55 @@ use App\Models\Complaint_attachment;
 use App\Models\Complaint_comment;
 use App\Repositories\ComplaintRepositry;
 use App\Repositories\UserRepository;
+use App\Services\interfaces\ComplaintServiceInterface;
+use ComplaintServiceInterface as GlobalComplaintServiceInterface;
 
 use function Symfony\Component\Clock\now;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
-class ComplaintService
+class ComplaintService implements ComplaintServiceInterface
 {
     protected $repo;
-
+    // protected $service;
     public function __construct(ComplaintRepositry $repo)
     {
         $this->repo = $repo->dao();
+        // $this->service = $service;
     }
+    public function updatecomplaint($id, array $data)
+    {
+        $lockErrorCodes = [
+            '23000',
+            '40001',
+            '1205',
+        ];
+        try {
+            DB::transaction(function () use ($data, $id) {
+                $c = Complaint::where('id', $id)
+                    ->lockForUpdate()
+                    ->first();
+                sleep(10);
 
+                $c->update($data);
+                // $c->is_locked = true;
+                return $c;
+            });
+        } catch (QueryException $e) {
+            if (in_array($e->getCode(), $lockErrorCodes) || str_contains($e->getMessage(), 'Deadlock')) {
+                return response()->json([
+                    'error' => 'السجل مقفل حالياً.',
+                    'details' => 'هذه الشكوى قيد التعديل من قبل مستخدم آخر، يرجى المحاولة لاحقاً.'
+                ], 423);
+            }
+            throw $e;
+        }
+    }
     public function index()
     {
 
         return $this->repo->getAll();
     }
-
-    // public function create(array $data)
-    // {
-    //     return $this->repo->create($data);
-    // }
-
     public function update(array $data)
     {
         return $this->repo->update($data['id'], $data);
@@ -39,6 +65,7 @@ class ComplaintService
     {
         return $this->repo->delete($id);
     }
+
     public function add_comment($data)
     {
         return Complaint_comment::create([
@@ -130,6 +157,7 @@ class ComplaintService
         ]);
         return $data;
     }
+
     public function createcomplaint(array $complaintData)
     {
         return  Complaint::create([
@@ -148,4 +176,13 @@ class ComplaintService
             'created_at' => now()
         ]);
     }
+
+
+
+    // public function create(array $data)
+    // {
+    //     return $this->repo->create($data);
+    // }
+
+
 }

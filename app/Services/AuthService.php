@@ -135,7 +135,7 @@ class AuthService
                 'message' => 'Incorrect Data',
                 'code' => 401,
             ];
-        } else if (!$user->email_verified_at) {
+        } else if (!$user->email_verified_at && $user->role == 'client') {
             $response = [
                 'status' => 'error',
                 'message' => 'Account not verified ,Please Verfy your Account then Try Again',

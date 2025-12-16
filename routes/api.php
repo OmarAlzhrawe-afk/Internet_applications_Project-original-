@@ -7,7 +7,18 @@ use App\Http\Controllers\GovermentAgencyController;
 use App\Http\Controllers\ManagingComplaintsController;
 use App\Http\Controllers\ManagingUsersController;
 
-//Auth Routes
+// testing load balancer api 
+Route::get('/test-balancer', function () {
+    $server_port = env('APP_PORT', 'N/A');
+    if ($server_port === 'N/A' && isset($_SERVER['SERVER_PORT'])) {
+        $server_port = $_SERVER['SERVER_PORT'];
+    }
+    return response()->json([
+        'message' => 'تم استلام الطلب بنجاح.',
+        'served_by' => 'Server running on port: ' . $server_port
+    ]);
+});
+//Auth  
 Route::post('login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 // super Admin apis

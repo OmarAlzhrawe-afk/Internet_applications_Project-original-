@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\contracts\UserManagingInterface;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
@@ -13,42 +14,55 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class ManagingUsersController extends Controller
 {
     use AuthorizesRequests;
-    private $service;
-    public function __construct(UserService $service)
+    private $userservice;
+    public function __construct(UserManagingInterface $userservice)
     {
-        $this->service = $service;
+        $this->userservice = $userservice;
     }
     public function index()
     {
+        // check permession
         $this->authorize('view', auth('sanctum')->user());
-        $users =  $this->service->index();
-        return  response()->json([
-            'status' => 'succesfully',
-            'users' => $users
-        ]);
+        // get users
+        $users =  $this->userservice->index();
+        // returning response
+        return sendResponse($users, 200, "Getting Users Done", false);
     }
     public function create(CreateUserRequest $request)
     {
+        // validating data
         $data =  $request->validated();
+        // check permession
         $this->authorize('create', User::class);
-        $user = $this->service->create($data);
-        return  sendResponse($user, 201, "Creating " . $request->input('role') . " Done", false);
+        // create user
+        $user = $this->userservice->create($data);
+        // sending response
+        return  sendResponse(null, 201, "Creating " . $request->input('role') . " Done", false);
     }
     public function update(UpdateUserRequest $request)
     {
+        // validating data
         $data =  $request->validated();
+        // check permession
         $user = User::findOrFail($data['id']);
         $this->authorize('update', $user);
-        $user = $this->service->update($data);
-        return  sendResponse($user, 200, "Updating " . $request->input('role') . " Done", false);
+        // updating user
+        $user = $this->userservice->update($data['id'], $data);
+        // sending response
+        return  sendResponse(null, 200, " Updating " . $user->role . "  " . $user->First_name . " Done", false);
     }
     public function delete(Request $request)
     {
+        // validating data
         $request->validate(['id' => 'required | exists:users,id']);
+        // check permession
         $user = User::find($request->input('id'));
         $this->authorize('delete', $user);
-        $user->tokens()->delete();
-        $user->delete();
-        return sendResponse(null, 200, "Deleting User Done", false);
+        // deleting user
+        $result = $this->userservice->delete($request->input('id'));
+        // sending response
+        if ($result) {
+            return sendResponse(null, 200, "Deleting User Done", false);
+        }
     }
 }
