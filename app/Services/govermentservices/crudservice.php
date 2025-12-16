@@ -81,7 +81,6 @@ class crudservice implements GovermentAgencyInterface
                 // logging information
                 Log::info("Deleted government agency", ['id' => $id]);
             });
-
             // returning response
             return true;
         } catch (Exception $e) {
