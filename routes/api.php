@@ -47,6 +47,7 @@ Route::prefix('supervisor')->middleware(['auth:sanctum', 'role:supervisor'])->gr
         Route::get('get_complaints', 'index'); // override for employee && supervisor && super Admin
         Route::post('update_complaint', 'update'); // override for employee && supervisor && super Admin
         Route::post('delete_complaint', 'delete'); // override for employee && supervisor && super Admin
+        Route::post('accept_complaint', 'accept_complaint');
     });
     Route::controller(ManagingUsersController::class)->group(function () {
         Route::get('get_employees', 'index');

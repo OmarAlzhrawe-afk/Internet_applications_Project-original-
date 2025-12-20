@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use app\contracts\GovermentAgencyInterface;
+use App\contracts\GovermentAgencyInterface;
 use App\Http\Requests\CreateAgencyRequest;
 use App\Http\Requests\UpdateAgencyRequest;
 use Illuminate\Http\Request;

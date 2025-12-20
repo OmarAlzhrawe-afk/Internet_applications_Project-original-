@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Services\govermentservices;
+namespace App\Services\govermentservices;
 
 use App\contracts\GovermentAgencyInterface;
 use App\Models\GovernmentAgencie;
@@ -37,8 +37,8 @@ class crudservice implements GovermentAgencyInterface
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'حدث خطأ أثناء إنشاء الجهة الحكومية.',
-                'details' => $e->getMessage(),
-                'details' => $e->getLine()
+                'Message' => $e->getMessage(),
+                'Line' => $e->getLine()
             ], 500);
         }
 
@@ -50,13 +50,13 @@ class crudservice implements GovermentAgencyInterface
         try {
             DB::transaction(function () use ($id, $data) {
                 // updating agency
-                $goverment =   GovernmentAgencie::where('id', $id)->update([
+                $goverment =   GovernmentAgencie::findOrFail($id);
+                $goverment->update([
                     'name' => $data['name'],
                     'description' => $data['description'],
                     'address' => $data['address'],
                     'contact_email' => $data['contact_email'],
                     'contact_phone' => $data['contact_phone'],
-
                 ]);
                 // logging information
                 Log::info("Updated government agency", ['name : ' => $goverment->name]);
@@ -64,8 +64,8 @@ class crudservice implements GovermentAgencyInterface
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'حدث خطأ أثناء تحديث الجهة الحكومية.',
-                'details' => $e->getMessage(),
-                'details' => $e->getLine()
+                'Message' => $e->getMessage(),
+                'Line' => $e->getLine()
             ], 500);
         }
 

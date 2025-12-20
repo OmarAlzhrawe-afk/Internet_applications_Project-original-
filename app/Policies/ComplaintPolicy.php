@@ -17,6 +17,10 @@ class ComplaintPolicy
         return in_array($authUser->role, ['super_admin', 'supervisor', 'employee', 'client']);
         // return true;
     }
+    public function accept_complaint(User $user, Complaint $complaint)
+    {
+        return in_array($user->role, ['super_admin', 'supervisor']) && $complaint->agency_id === $user->agency_id && $complaint->status === 'new';
+    }
     public function viewAny(User $user, Complaint $complaint)
     {
         switch ($user->role) {

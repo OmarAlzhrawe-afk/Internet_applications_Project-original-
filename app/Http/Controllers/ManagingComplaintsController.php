@@ -102,4 +102,23 @@ class ManagingComplaintsController extends Controller
         $complaintData = $this->complaintservice->OneComplaint($id);
         return sendResponse($complaintData, 200, "Getting data For Complaint Done ", false);
     }
+    public function accept_complaint(Request $request)
+    {
+        // validate request
+        $data = $request->validate([
+            'complaint_id' => 'required|exists:complaints,id',
+            'employee_id' => 'required|exists:users,id',
+        ]);
+        // check permission
+        $complaint = Complaint::find($data['complaint_id']);
+        $this->authorize('accept_complaint', $complaint);
+        // accept complaint
+        $response = $this->complaintservice->accept_complaint($data);
+        // sending response
+        if ($response) {
+            return sendResponse(null, 200, "Accepting Complaint Done", false);
+        } else {
+            return sendResponse(null, 423, $response['message'], true);
+        }
+    }
 }

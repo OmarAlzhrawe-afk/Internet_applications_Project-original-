@@ -11,4 +11,5 @@ interface ComplaintManagmentInterface
     public function add_comment_complaint($data);
     public function add_attachment_complaint($data);
     public function OneComplaint($id);
+    public function accept_complaint($data);
 }

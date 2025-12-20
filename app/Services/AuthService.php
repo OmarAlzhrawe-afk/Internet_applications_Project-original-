@@ -147,7 +147,11 @@ class AuthService
                 'status' => true,
                 'message' => 'login Done',
                 'code' => 200,
-                'token' => $token,
+                'data' => [
+                    'token' => $token,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                ],
             ];
         }
         return $response;

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Services\AuthService;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -21,6 +22,7 @@ class AuthController extends Controller
     {
         $data = $request->validated();
         $userData =  $this->service->registerclient($data);
+        broadcast(new \App\Events\UserRegister($userData));
         return sendResponse(null, 201, "Create Account For  " . $userData->First_name . "  Done");
     }
     public function sendVerificationCode(SendVerficationCodeRequest $request)
@@ -41,12 +43,18 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $data = $request->validate([
+        $check = Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email',
             'password' => 'required'
         ]);
+        if ($check->failed()) {
+            return sendResponse(null, 400, "validation error", $check->errors());
+        }
+        $data = $request->only('email', 'password');
         $response =  $this->service->login($data);
-        return sendResponse($response['token'] ?? null, $response['code'], $response['message'], $response['status']);
+        // $response['email'] = $request->email;
+        // $response['role'] = auth('sanctum')->user()->role ?? null;
+        return sendResponse($response['data'] ?? null, $response['code'], $response['message'], $response['status']);
     }
     public function logout(Request $request)
     {

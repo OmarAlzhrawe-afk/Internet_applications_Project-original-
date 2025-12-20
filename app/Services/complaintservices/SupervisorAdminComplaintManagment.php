@@ -4,6 +4,7 @@ namespace App\Services\complaintservices;
 
 use App\contracts\ComplaintManagmentInterface;
 use App\Models\Complaint;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
@@ -68,6 +69,29 @@ class SupervisorAdminComplaintManagment implements ComplaintManagmentInterface
         Log::info('Supervisor ' . auth('sanctum')->user()->First_name . ' deleted complaint with ID: ' . $id);
         // sending response
         return true;
+    }
+    public function accept_complaint($data)
+    {
+        try {
+            $complaints = Complaint::findOrFail($data['complaint_id']);
+            DB::transaction(function () use ($data, $complaints) {
+                $complaints->update(['status' => 'in_progress', 'employee_id' => $data['employee_id']]);
+                // logging information
+                Log::info("Complaint accepted", ['complaint_id' => $data['complaint_id'], 'assigned_to' => $data['employee_id']]);
+                // Sending Notification to citizen and assigned employee
+                $notificationService = new \App\Services\NotificationService();
+                $notificationService->complaintAccepted($complaints, auth('sanctum')->user());
+                // logging information
+                Log::info("Notifications sent for accepted complaint", ['complaint_id' => $data['complaint_id']]);
+            });
+            return true;
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'حدث خطأ أثناء قبول الشكوى.',
+                'Message' => $e->getMessage(),
+                'line' => $e->getLine()
+            ], 500);
+        }
     }
     public function add_comment_complaint($data) {}
     public function add_attachment_complaint($data) {}
