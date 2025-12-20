@@ -20,3 +20,6 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('users.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+Broadcast::channel('agencies.{agencyId}', function ($user, $agencyId) {
+    return (int) $user->agency_id === (int) $agencyId && $user->role === 'supervisor';
+});

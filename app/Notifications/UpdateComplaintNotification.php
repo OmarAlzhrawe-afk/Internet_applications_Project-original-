@@ -15,7 +15,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 // ... استيراد الكلاسات القياسية فقط
 use Illuminate\Broadcasting\PrivateChannel;
 
-class ComplaintAcceptedNotification extends Notification implements ShouldQueue,ShouldBroadcast
+class UpdateComplaintNotification extends Notification implements ShouldQueue,ShouldBroadcast
 {
     use Queueable;
     public $notifiable;
@@ -45,8 +45,8 @@ class ComplaintAcceptedNotification extends Notification implements ShouldQueue,
     public function toArray(): array
     {
         return [
-            'type' => 'complaint.accepted',
-            'message' => 'complaint ' . $this->complaint->title . ' are Accepted',
+            'type' => 'complaint.updated',
+            'message' => 'complaint ' . $this->complaint->title . ' are Updated',
             'complaint_id' => $this->complaint->id,
         ];
     }
@@ -54,13 +54,14 @@ class ComplaintAcceptedNotification extends Notification implements ShouldQueue,
     {
         // return new BroadcastMessage($this->toArray());
         return new BroadcastMessage([
-                  'message' =>"the Compalint That You Create it  :  " . $this->byUser->name ,
-             'type' => 'complaint.Accepted',
-            'title' => 'accept Complaint',
+            'type' => 'complaint.updated',
+            'message' => 'complaint ' . $this->complaint->title . ' are Updated',
+            'complaint_id' => $this->complaint->id,
         ]) ;
     }
-    public function broadcastOn()
-    {
-        return new PrivateChannel('users.' . $this->complaint->client->id);
-    }
+    // public function broadcastOn()
+    // {
+
+    //     return new PrivateChannel('users.' . $this->complaint->client->id);
+    // }
 }

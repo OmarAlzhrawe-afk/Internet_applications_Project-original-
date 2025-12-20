@@ -6,6 +6,7 @@ use App\contracts\ComplaintManagmentInterface;
 use App\Models\Complaint;
 use App\Models\Complaint_comment;
 use App\Models\Complaint_attachment;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
@@ -38,7 +39,7 @@ class CitizenComplaintManagment implements ComplaintManagmentInterface
     {
         // create new complaint 
         DB::transaction(function () use ($data) {
-            Complaint::create([
+            $complaint = Complaint::create([
                 'title' => $data['title'],
                 'description' => $data['description'],
                 'type' => $data['type'],
@@ -53,6 +54,11 @@ class CitizenComplaintManagment implements ComplaintManagmentInterface
                 'employee_id' => null,
                 'created_at' => now()
             ]);
+            DB::transaction(function() use ($complaint){
+                $notificationservice = new NotificationService() ;
+                $notificationservice->complaintCreated($complaint) ;
+                Log::info('send notification to supervisor that there is new Complaint created ') ;
+            }) ;
             // register log info 
             Log::info("create new Complaint by client " . auth('sanctum')->user()->First_name);
         });
@@ -213,4 +219,5 @@ class CitizenComplaintManagment implements ComplaintManagmentInterface
         return true;
     }
     public function delete($id) {}
+    public function accept_complaint($data){}
 }

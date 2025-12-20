@@ -52,8 +52,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(GovernmentAgencie::class); // , "agency_id", "id"
     }
-     public function receivesBroadcastNotificationsOn(): string
-    {
-        return 'users.'.$this->id;
-    }
+//      public function receivesBroadcastNotificationsOn(): string
+//     {
+// return [new PrivateChannel('users.' . $this->id)];    }
+public function receivesBroadcastNotificationsOn(): array
+{
+    // لارفيل سيستخدم هذه الدالة تلقائياً لكل مستخدم موجود في قائمة المستلمين
+    return [new PrivateChannel('users.' . $this->id)];
+}
 }

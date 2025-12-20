@@ -75,7 +75,10 @@ class SupervisorAdminComplaintManagment implements ComplaintManagmentInterface
         try {
             $complaints = Complaint::findOrFail($data['complaint_id']);
             DB::transaction(function () use ($data, $complaints) {
+                // updating data for complaint 
                 $complaints->update(['status' => 'in_progress', 'employee_id' => $data['employee_id']]);
+                // loading Employee & Client 
+                $complaints->load(['client' ,'employee']);
                 // logging information
                 Log::info("Complaint accepted", ['complaint_id' => $data['complaint_id'], 'assigned_to' => $data['employee_id']]);
                 // Sending Notification to citizen and assigned employee

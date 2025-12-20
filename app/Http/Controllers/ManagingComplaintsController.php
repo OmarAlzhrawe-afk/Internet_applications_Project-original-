@@ -12,14 +12,18 @@ use App\Models\Complaint;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Services\interfaces\ComplaintServiceInterface;
+use App\Services\NotificationService;
 
 class ManagingComplaintsController extends Controller
 {
     use AuthorizesRequests;
     private $complaintservice;
-    public function __construct(ComplaintManagmentInterface $complaintservice)
+    private $notificationservice;
+    public function __construct(ComplaintManagmentInterface $complaintservice ,NotificationService
+    $notificationservice)
     {
         $this->complaintservice = $complaintservice;
+        $this->notificationservice = new NotificationService();
     }
     public function index()
     {
@@ -38,6 +42,8 @@ class ManagingComplaintsController extends Controller
         $this->authorize('update', Complaint::find($data['id']));
         // update complaint
         $response = $this->complaintservice->update($data['id'], $data);
+        // sending notifications for users related to this complaint
+        $this->notificationservice->complaintupdated(Complaint::find($data['id']) ,auth('sanctum')->user()) ;
         // sending response
         if ($response['status']) {
             return sendResponse(null, 200, "Updating Complaint Done", false);
@@ -79,6 +85,8 @@ class ManagingComplaintsController extends Controller
         $this->authorize('add_comment', Complaint::find($data['complaint_id']));
         // add comment to complaint
         $comment = $this->complaintservice->add_comment_complaint($data);
+        // sending notification 
+        $this->notificationservice->addcomment(Complaint::find($data['complaint_id']) ,auth('sanctum')->user());
         // sending response
         return sendResponse($comment, 200, "Adding Complaint Comment Done", false);
     }
@@ -92,6 +100,9 @@ class ManagingComplaintsController extends Controller
         $this->authorize('add_attachment_complaint', $complaint);
         // add attachment to complaint
         $attachment = $this->complaintservice->add_attachment_complaint($data);
+        // sending notification 
+        $this->notificationservice->addattachment(Complaint::find($data['complaint_id']) ,auth('sanctum')->user());
+        
         // sending response
         return sendResponse($attachment, 201, "Attachment added successfully", false);
     }
