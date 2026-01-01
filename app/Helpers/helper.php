@@ -19,7 +19,7 @@ if (!function_exists('sendResponse')) {
                 ],
                 'data' => $data
             ],
-            200
+            $code
         );
     }
 }

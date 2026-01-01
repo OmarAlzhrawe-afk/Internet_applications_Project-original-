@@ -16,7 +16,7 @@ class SupervisorAdminUserManagmentService implements UserManagingInterface
         // getting users with caching
         $users = Cache::remember(auth('sanctum')->user()->name . auth('sanctum')->user()->id . 'users', 10, function () {
             //with('agency:name')->
-            return   User::where([
+            return   User::with('agency:id,name')->where([ // with('')->
                 'role' => 'employee',
                 'agency_id' => auth('sanctum')->user()->agency_id
             ])->get([
@@ -25,6 +25,7 @@ class SupervisorAdminUserManagmentService implements UserManagingInterface
                 'Last_name',
                 'email',
                 'phone_number',
+                'agency_id',
                 'role',
             ]);
         });
@@ -36,9 +37,9 @@ class SupervisorAdminUserManagmentService implements UserManagingInterface
     public function create($data)
     {
         try {
-            DB::transaction(function ($data) {
+            DB::transaction(function () use ($data) {
                 // creation User
-                return User::create([
+                $user = User::create([
                     'First_name' => $data['First_name'],  // استخدم lowercase
                     'Last_name' => $data['Last_name'],
                     'phone_number' => $data['phone_number'],
@@ -49,14 +50,15 @@ class SupervisorAdminUserManagmentService implements UserManagingInterface
                 ]);
                 // register logging data
                 Log::info('Supervisor ' . auth('sanctum')->user()->name . ' with id ' . auth('sanctum')->user()->id . ' created a new user with email ' . $data['email'] . ' at ' . now());
+                return $user;
             });
             // returning results
             return true;
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'حدث خطأ أثناء إنشاء المستخدم.',
-                'details' => $e->getMessage(),
-                'details' => $e->getLine()
+                'message' => $e->getMessage(),
+                'line' => $e->getLine()
             ], 500);
         }
     }

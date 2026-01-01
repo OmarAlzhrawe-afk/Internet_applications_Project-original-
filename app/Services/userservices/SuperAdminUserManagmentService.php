@@ -15,13 +15,13 @@ class SuperAdminUserManagmentService implements UserManagingInterface
     {
         // getting users with caching
         $users = Cache::remember(auth('sanctum')->user()->name . auth('sanctum')->user()->id . 'users', 10, function () {
-            return   User::with('agency:name')->get([
+            return   User::with('agency:id,name')->get([
                 'id',
                 'First_name',
                 'Last_name',
                 'email',
                 'phone_number',
-                // 'agency',
+                'agency_id',
                 'role',
             ]);
         });

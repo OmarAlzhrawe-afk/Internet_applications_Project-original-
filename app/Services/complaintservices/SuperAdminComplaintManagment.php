@@ -75,4 +75,5 @@ class SuperAdminComplaintManagment implements ComplaintManagmentInterface
     public function add_attachment_complaint($data) {}
     public function create($data) {}
     public function OneComplaint($id) {}
+    public function accept_complaint($data) {}
 }

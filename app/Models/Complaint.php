@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Complaint extends Model
 {
+    use LogsActivity;
     use HasFactory;
     protected $table = "complaints";
     protected $fillable = [
@@ -44,5 +47,11 @@ class Complaint extends Model
     public function logs()
     {
         return $this->hasMany(Complaint_log::class, "complaint_id", "id");
+    }
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty();
     }
 }

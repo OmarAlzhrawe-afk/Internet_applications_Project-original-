@@ -39,11 +39,11 @@ class AuthService
         $user = User::find($identifier);
         //  Here you would typically send the code via email or SMS
         if ($data['type'] == 'email') {
-            // Send email logic
-            Mail::raw("Your verification code is: $code", function ($message) use ($user) {
-                $message->to($user->email)
-                    ->subject('Email Verification Code');
-            });
+            // // Send email logic
+            // Mail::raw("Your verification code is: $code", function ($message) use ($user) {
+            //     $message->to($user->email)
+            //         ->subject('Email Verification Code');
+            // });
         } elseif ($data['type'] == 'phone') {
             // // Send SMS logic (using a hypothetical SMS service)
             // SmsService::send($user->phone_number, "Your verification code is: $code");
@@ -64,7 +64,6 @@ class AuthService
                 'code' => 400,
             ];
         }
-
         // Fetch OTP
         $otp = Otp::where('user_id', $user->id)
             ->where('code', $data['code'])
@@ -80,17 +79,16 @@ class AuthService
                 'message' => 'Invalid or expired code',
                 'code' => 400,
             ];
+        } else {
+            // Mark verified
+            $user->update(['email_verified_at' => now()]);
+            $otp->update(['is_used' => true]);
+            $response = [
+                'status' => true,
+                'message' => 'Email verified successfully',
+                'code' => 200,
+            ];
         }
-
-        // Mark verified
-        $user->update(['email_verified_at' => now()]);
-        $otp->update(['is_used' => true]);
-
-        $response = [
-            'status' => true,
-            'message' => 'Email verified successfully',
-            'code' => 200,
-        ];
         return $response;
     }
     // public function ChechEmailVerification(array $data)
@@ -151,6 +149,7 @@ class AuthService
                     'token' => $token,
                     'email' => $user->email,
                     'role' => $user->role,
+                    'user_id' => $user->id,
                 ],
             ];
         }

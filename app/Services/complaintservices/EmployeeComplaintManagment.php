@@ -21,7 +21,7 @@ class EmployeeComplaintManagment implements ComplaintManagmentInterface
         $complaints = Cache::remember($user->First_name . $user->id . 'complaints', 10, function () use ($user) {
             return Complaint::where([
                 'agency_id' => $user->agency_id,
-                'employee_id' => $user->id
+                'employee_id' => $user->id,
             ])->get();
         });
         // register logging info
@@ -33,11 +33,7 @@ class EmployeeComplaintManagment implements ComplaintManagmentInterface
     // Implementation for employee to update a complaint
     public function update($id, $data)
     {
-        $lockErrorCodes = [
-            '23000',
-            '40001',
-            '1205',
-        ];
+        $lockErrorCodes = ['23000', '40001', '1205'];
         $respoonse = [];
         try {
             DB::transaction(function () use ($id, $data) {
@@ -88,25 +84,21 @@ class EmployeeComplaintManagment implements ComplaintManagmentInterface
         $file = $data['file'];
         $extension = $file->getClientOriginalExtension();
         $file_name = uniqid() . '.' . $extension;
-        $file_path = $file->storeAs(
-            'complaints_attachments/' . $data['complaint_id'],
-            $file_name,
-            'public'
-        );
+        $file_path = $file->storeAs('complaints_attachments/' . $data['complaint_id'], $file_name, 'public');
         DB::transaction(function () use ($data, $file_path, $extension) {
             // storing file path in database
             Complaint_attachment::create([
-                'file_path'    => $file_path,
-                'file_type'    => $extension,
+                'file_path' => $file_path,
+                'file_type' => $extension,
                 'complaint_id' => $data['complaint_id'],
-                'description'  => $data['description'] ?? null,
+                'description' => $data['description'] ?? null,
             ]);
             // register logging info
             Log::info('Employee ' . auth('sanctum')->user()->First_name . ' added attachment to complaint with ID: ' . $data['complaint_id']);
             // Adding Sending Notification Service
             /**
-             * 
-             * 
+             *
+             *
              */
         });
         // returning response
@@ -115,4 +107,5 @@ class EmployeeComplaintManagment implements ComplaintManagmentInterface
     public function delete($id) {}
     public function create($data) {}
     public function OneComplaint($id) {}
+    public function accept_complaint($data) {}
 }

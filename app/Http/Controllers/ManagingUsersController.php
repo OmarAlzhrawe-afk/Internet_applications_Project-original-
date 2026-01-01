@@ -25,6 +25,11 @@ class ManagingUsersController extends Controller
         $this->authorize('view', auth('sanctum')->user());
         // get users
         $users =  $this->userservice->index();
+        // logging data 
+        activity()
+            ->causedBy(auth('sanctum')->user())
+            ->event('Getting Users')
+            ->log(" User " . auth('sanctum')->user()->First_name . " Getting Users Agency");
         // returning response
         return sendResponse($users, 200, "Getting Users Done", false);
     }
@@ -36,6 +41,11 @@ class ManagingUsersController extends Controller
         $this->authorize('create', User::class);
         // create user
         $user = $this->userservice->create($data);
+        // logging data 
+        activity()
+            ->causedBy(auth('sanctum')->user())
+            ->event('Create User')
+            ->log(" User " . auth('sanctum')->user()->First_name . " creating User");
         // sending response
         return  sendResponse(null, 201, "Creating " . $request->input('role') . " Done", false);
     }
@@ -48,6 +58,12 @@ class ManagingUsersController extends Controller
         $this->authorize('update', $user);
         // updating user
         $user = $this->userservice->update($data['id'], $data);
+        // logging data 
+        activity()
+            ->causedBy(auth('sanctum')->user())
+            ->event('update User')
+            ->log(" User " . auth('sanctum')->user()->First_name . " update User Id : " . $data['id']);
+
         // sending response
         return  sendResponse(null, 200, " Updating " . $user->role . "  " . $user->First_name . " Done", false);
     }
@@ -60,6 +76,11 @@ class ManagingUsersController extends Controller
         $this->authorize('delete', $user);
         // deleting user
         $result = $this->userservice->delete($request->input('id'));
+        // logging data 
+        activity()
+            ->causedBy(auth('sanctum')->user())
+            ->event('Delete User')
+            ->log(" User " . auth('sanctum')->user()->First_name . " Delete User  : " . $request->input('id'));
         // sending response
         if ($result) {
             return sendResponse(null, 200, "Deleting User Done", false);
