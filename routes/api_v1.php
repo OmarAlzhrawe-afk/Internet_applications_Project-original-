@@ -6,7 +6,9 @@ use App\Http\Controllers\V1\AuthController;
 use App\Http\Controllers\V1\GovermentAgencyController;
 use App\Http\Controllers\V1\ManagingComplaintsController;
 use App\Http\Controllers\V1\ManagingUsersController;
+use Illuminate\Support\Facades\Broadcast;
 
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 // testing load balancer api 
 Route::get('/test-balancer', function () {
     $server_port = env('APP_PORT', 'N/A');

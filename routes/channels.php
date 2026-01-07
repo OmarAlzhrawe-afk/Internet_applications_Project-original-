@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Broadcast;
 // Broadcast::channel('user.{id}', function ($user, $id) {
 //     return (int) $user->id === (int) $id;
 // });
+
+Broadcast::routes(['middleware' => ['auth:sanctum']]);
 Broadcast::channel('users.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });

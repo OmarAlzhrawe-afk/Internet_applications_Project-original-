@@ -15,7 +15,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 // ... استيراد الكلاسات القياسية فقط
 use Illuminate\Broadcasting\PrivateChannel;
 
-class AddComplaintCommentNotification extends Notification implements ShouldQueue,ShouldBroadcast
+class AddComplaintCommentNotification extends Notification implements ShouldQueue, ShouldBroadcast
 {
     use Queueable;
     public $notifiable;
@@ -50,14 +50,14 @@ class AddComplaintCommentNotification extends Notification implements ShouldQueu
             'complaint_id' => $this->complaint->id,
         ];
     }
-    public function toBroadcast($notifiable) : BroadcastMessage
+    public function toBroadcast($notifiable): BroadcastMessage
     {
         // return new BroadcastMessage($this->toArray());
         return new BroadcastMessage([
             'type' => 'complaint.addcomment',
             'message' => 'User ' . $this->byUser->First_name . 'Add New Comment For Complaint ' . $this->complaint->title,
             'complaint_id' => $this->complaint->id,
-        ]) ;
+        ]);
     }
     // public function broadcastOn()
     // {

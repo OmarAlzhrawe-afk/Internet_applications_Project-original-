@@ -28,7 +28,7 @@ class AuthService
     {
         // creation and storing otp
         $identifier = $data['id'];
-        $code = rand(100000, 999999);
+        $code = \rand(100000, 999999);
         Otp::create([
             'user_id' => $identifier,
             'identifier' => $data['type'],

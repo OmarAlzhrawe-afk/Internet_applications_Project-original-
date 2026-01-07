@@ -34,6 +34,9 @@ return [
             'path' => env('REVERB_SERVER_PATH', ''),
             'hostname' => env('REVERB_HOST'),
             'options' => [
+                'enable_terminator' => false,
+                'max_message_size' => 10000,
+                'pulse_ingest_interval' => 10,
                 'tls' => [],
             ],
             'max_request_size' => env('REVERB_MAX_REQUEST_SIZE', 10_000),
